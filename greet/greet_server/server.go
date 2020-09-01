@@ -53,11 +53,34 @@ func (*server) LongGreet(stream greetpb.GreetService_LongGreetServer) error {
 			}
 			return stream.SendAndClose(res)
 		}
+		log.Fatalf("Error while reciving stream: %v", err)
 		if err != nil {
-			log.Fatalf("Error while reciving stream: %v", err)
 		}
 		firstName := req.GetGreeting().GetFirstName()
 		result += "Hello " + firstName + "! "
+	}
+}
+
+func (*server) GreetEveryone(stream greetpb.GreetService_GreetEveryoneServer) error {
+	fmt.Println("Greet (Bi-Directional Streaming RPC) invoked.")
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// Client streaming is finished.
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Error while receving client stream: %v", err)
+			return err
+		}
+		firstName := req.GetGreeting().GetFirstName()
+		result := "Hello " + firstName
+		err = stream.Send(&greetpb.GreetEveryoneResponse{
+			Result: result,
+		})
+		if err != nil {
+			log.Fatalf("Error while sending server stream: %v", err)
+		}
 	}
 }
 
