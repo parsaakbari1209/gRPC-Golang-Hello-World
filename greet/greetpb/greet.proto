@@ -9,14 +9,25 @@ message Greeting {
     string last_name = 2;
 }
 
-message GreetingRequest {
+message GreetRequest {
     Greeting greeting = 1;
 }
 
-message GreetingResponse {
+message GreetResponse {
+    string result = 1;
+}
+
+message GreetManyTimesRequest {
+    Greeting greeting = 1;
+}
+
+message GreetManyTimesResponse {
     string result = 1;
 }
 
 service GreetService {
-    rpc Greet(GreetingRequest) returns (GreetingResponse) {};
+    // Unary
+    rpc Greet(GreetRequest) returns (GreetResponse) {};
+    // Server Streaming
+    rpc GreetManyTimes(GreetManyTimesRequest) returns (stream GreetManyTimesResponse) {};
 }
